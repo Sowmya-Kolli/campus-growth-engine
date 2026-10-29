@@ -11,14 +11,18 @@ import {
   Registration,
 } from '@/types';
 
-// Supabase client initialization (optional, auto-detected)
+// Supabase client initialization (server-side only, privileged credentials protected)
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL;
+// Priority to server-only SUPABASE_SERVICE_ROLE_KEY, falling back to anon key if service role is absent
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
 export const supabase = supabaseUrl && supabaseKey ? createClient(supabaseUrl, supabaseKey) : null;
 
 const DATA_DIR = path.join(process.cwd(), 'data');
 const REGISTRATIONS_FILE = path.join(DATA_DIR, 'registrations.json');
+
+// In-memory fallback cache for serverless environments (e.g. Vercel read-only filesystem)
+let inMemoryRegistrations: Registration[] | null = null;
 
 // Known Ambassadors Roster
 export const AMBASSADORS_ROSTER: Ambassador[] = [
@@ -80,8 +84,8 @@ export const AMBASSADORS_ROSTER: Ambassador[] = [
   },
 ];
 
-// Initial demo seed registrations
-const INITIAL_DEMO_RECORDS: Registration[] = [
+// Initial demo baseline records (clearly flagged with isDemo: true)
+export const INITIAL_DEMO_RECORDS: Registration[] = [
   {
     id: 'reg-demo-1',
     ticketNumber: 'NX-94218',
@@ -179,32 +183,51 @@ const INITIAL_DEMO_RECORDS: Registration[] = [
   },
 ];
 
-// Helper to ensure data directory and file exist
+// Helper to ensure data directory and file exist with serverless safety
 function ensureDataFile() {
-  if (!fs.existsSync(DATA_DIR)) {
-    fs.mkdirSync(DATA_DIR, { recursive: true });
-  }
-  if (!fs.existsSync(REGISTRATIONS_FILE)) {
-    fs.writeFileSync(REGISTRATIONS_FILE, JSON.stringify(INITIAL_DEMO_RECORDS, null, 2), 'utf-8');
+  try {
+    if (!fs.existsSync(DATA_DIR)) {
+      fs.mkdirSync(DATA_DIR, { recursive: true });
+    }
+    if (!fs.existsSync(REGISTRATIONS_FILE)) {
+      fs.writeFileSync(REGISTRATIONS_FILE, JSON.stringify(INITIAL_DEMO_RECORDS, null, 2), 'utf-8');
+    }
+  } catch (err: any) {
+    // On serverless platforms like Vercel, the local filesystem is read-only
+    console.warn('Filesystem is read-only (Serverless environment). Using in-memory store:', err.message);
   }
 }
 
-// Read all registrations from local storage
+// Read all registrations from storage with serverless fallback
 export function getLocalRegistrations(): Registration[] {
+  if (inMemoryRegistrations) {
+    return inMemoryRegistrations;
+  }
+
   try {
     ensureDataFile();
-    const raw = fs.readFileSync(REGISTRATIONS_FILE, 'utf-8');
-    return JSON.parse(raw) as Registration[];
+    if (fs.existsSync(REGISTRATIONS_FILE)) {
+      const raw = fs.readFileSync(REGISTRATIONS_FILE, 'utf-8');
+      inMemoryRegistrations = JSON.parse(raw) as Registration[];
+      return inMemoryRegistrations;
+    }
   } catch (err) {
-    console.error('Error reading local registrations:', err);
-    return INITIAL_DEMO_RECORDS;
+    console.warn('Local file read warning, using in-memory baseline:', err);
   }
+
+  inMemoryRegistrations = [...INITIAL_DEMO_RECORDS];
+  return inMemoryRegistrations;
 }
 
-// Save all registrations to local storage
+// Save all registrations with serverless safety
 export function saveLocalRegistrations(records: Registration[]): void {
-  ensureDataFile();
-  fs.writeFileSync(REGISTRATIONS_FILE, JSON.stringify(records, null, 2), 'utf-8');
+  inMemoryRegistrations = records;
+  try {
+    ensureDataFile();
+    fs.writeFileSync(REGISTRATIONS_FILE, JSON.stringify(records, null, 2), 'utf-8');
+  } catch (err: any) {
+    console.warn('Local filesystem write failed (expected on Vercel serverless). In-memory cache updated:', err.message);
+  }
 }
 
 // Normalize email address strictly
@@ -212,13 +235,14 @@ export function normalizeEmail(email: string): string {
   return email.trim().toLowerCase();
 }
 
-// Generate unique referral code for a new student
+// Generate unique referral code for a student
 export function generateStudentReferralCode(name: string, branch: AcademicBranch): string {
-  const cleanName = name
-    .trim()
-    .split(' ')[0]
-    .replace(/[^a-zA-Z]/g, '')
-    .toUpperCase() || 'STUDENT';
+  const cleanName =
+    name
+      .trim()
+      .split(' ')[0]
+      .replace(/[^a-zA-Z]/g, '')
+      .toUpperCase() || 'STUDENT';
   const randomSuffix = Math.floor(100 + Math.random() * 900);
   return `${cleanName}-${branch}-${randomSuffix}`;
 }
@@ -243,7 +267,6 @@ export function resolveAcquisitionChannel(referralCode?: string | null): {
 
   const code = referralCode.trim().toUpperCase();
 
-  // Check known ambassadors
   const ambassador = AMBASSADORS_ROSTER.find((a) => a.code.toUpperCase() === code);
   if (ambassador) {
     return {
@@ -252,7 +275,6 @@ export function resolveAcquisitionChannel(referralCode?: string | null): {
     };
   }
 
-  // Check if WhatsApp tag
   if (code.includes('WHATSAPP') || code.includes('WA-') || code.includes('GRP')) {
     return {
       channel: 'whatsapp',
@@ -260,7 +282,6 @@ export function resolveAcquisitionChannel(referralCode?: string | null): {
     };
   }
 
-  // Check if social media tag
   if (code.includes('LINKEDIN') || code.includes('INSTA') || code.includes('IG')) {
     return {
       channel: 'social',
@@ -268,18 +289,21 @@ export function resolveAcquisitionChannel(referralCode?: string | null): {
     };
   }
 
-  // Otherwise, treat as peer referral
   return {
     channel: 'peer',
     channelLabel: `Friend Referral (${code})`,
   };
 }
 
-// Read all registrations (Supabase if available, else local)
+// Read all registrations (Supabase if available, else local storage)
 export async function getAllRegistrations(): Promise<Registration[]> {
   if (supabase) {
     try {
-      const { data, error } = await supabase.from('registrations').select('*').order('created_at', { ascending: false });
+      const { data, error } = await supabase
+        .from('registrations')
+        .select('*')
+        .order('created_at', { ascending: false });
+
       if (!error && data && data.length > 0) {
         return data.map((row) => ({
           id: row.id,
@@ -302,21 +326,21 @@ export async function getAllRegistrations(): Promise<Registration[]> {
         }));
       }
     } catch (err) {
-      console.warn('Supabase query failed, falling back to local storage:', err);
+      console.warn('Supabase query failed, falling back to local store:', err);
     }
   }
 
   return getLocalRegistrations();
 }
 
-// Find registration by email
+// Find registration by normalized email
 export async function findRegistrationByEmail(email: string): Promise<Registration | null> {
   const normalized = normalizeEmail(email);
   const all = await getAllRegistrations();
   return all.find((r) => normalizeEmail(r.email) === normalized) || null;
 }
 
-// Find registration by ID
+// Find registration by ID or ticket
 export async function findRegistrationById(id: string): Promise<Registration | null> {
   const all = await getAllRegistrations();
   return all.find((r) => r.id === id || r.ticketNumber === id) || null;
@@ -347,7 +371,7 @@ export async function createRegistration(params: {
     return { error: 'College / University name is required' };
   }
 
-  // Check duplicate
+  // Duplicate email check
   const existing = await findRegistrationByEmail(normalizedEmail);
   if (existing) {
     return {
@@ -381,7 +405,7 @@ export async function createRegistration(params: {
     isDemo: false,
   };
 
-  // If Supabase is available, write to Supabase
+  // If Supabase is connected, write to Supabase
   if (supabase) {
     try {
       const { error } = await supabase.from('registrations').insert({
@@ -404,14 +428,14 @@ export async function createRegistration(params: {
       });
 
       if (error) {
-        console.error('Supabase insert error, saving locally:', error);
+        console.error('Supabase insert error, persisting locally:', error);
       }
     } catch (err) {
-      console.error('Supabase write exception, saving locally:', err);
+      console.error('Supabase write exception, persisting locally:', err);
     }
   }
 
-  // Always update local persistent storage so it stays in sync
+  // Update local memory / file storage
   const currentLocal = getLocalRegistrations();
   currentLocal.unshift(newRecord);
   saveLocalRegistrations(currentLocal);
@@ -419,40 +443,237 @@ export async function createRegistration(params: {
   return { registration: newRecord };
 }
 
-// Compute dashboard statistics (with demo mode or genuine mode)
-export async function getDashboardStats(includeDemo: boolean = true): Promise<DashboardStats> {
+// Compute dashboard statistics (strictly distinguishing genuine records from demo baseline)
+export async function getDashboardStats(includeDemo: boolean = false): Promise<DashboardStats> {
   const allRegistrations = await getAllRegistrations();
 
   const genuineRecords = allRegistrations.filter((r) => !r.isDemo);
   const demoRecords = allRegistrations.filter((r) => r.isDemo);
 
-  // If includeDemo is true, we blend genuine with demo baseline (capped at target proportion)
-  // If includeDemo is false, we strictly show genuine registrations!
   const target = 500;
   const budgetTotal = 2000;
 
-  let activeRecords = includeDemo ? allRegistrations : genuineRecords;
+  // -------------------------------------------------------------------------
+  // 1. GENUINE REGISTRATIONS MODE (Default, strictly real data)
+  // -------------------------------------------------------------------------
+  if (!includeDemo) {
+    const genuineCount = genuineRecords.length;
+    const percentageAchieved = Number(((genuineCount / target) * 100).toFixed(1));
+    const regsRemaining = Math.max(0, target - genuineCount);
 
-  // Baseline demo metrics matching Stitch reference:
-  // Base 342 registrations (Direct: 244, Referrals: 98)
+    // Filter genuine records created in the last 24h
+    const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+    const regsToday = genuineRecords.filter((r) => new Date(r.createdAt) >= oneDayAgo).length;
+
+    // Day-over-day growth: only compute if previous baseline exists
+    const twoDaysAgo = new Date(Date.now() - 48 * 60 * 60 * 1000);
+    const regsYesterday = genuineRecords.filter(
+      (r) => new Date(r.createdAt) >= twoDaysAgo && new Date(r.createdAt) < oneDayAgo
+    ).length;
+
+    const regsTodayGrowth =
+      regsYesterday > 0
+        ? `${(((regsToday - regsYesterday) / regsYesterday) * 100).toFixed(0)}%`
+        : 'Not enough data (Awaiting multi-day baseline)';
+
+    // Budget: real spend is not yet connected to a payment gateway
+    const budgetSpent = 'Not enough data (Spend unrecorded)';
+    const budgetBurnPercentage = 'Not enough data';
+    const costPerRegistration = 'Not enough data (Spend unrecorded)';
+
+    // Referral metrics
+    const viralLinksCount = genuineRecords.filter((r) => r.channel === 'peer').length;
+    const referralRate =
+      genuineCount > 0 ? Number(((viralLinksCount / genuineCount) * 100).toFixed(1)) : 0;
+    const directCount = genuineRecords.filter((r) => r.channel === 'direct').length;
+    const viralKFactor =
+      directCount > 0 && viralLinksCount > 0
+        ? `${(viralLinksCount / directCount).toFixed(2)}x`
+        : 'Not enough data (Awaiting referral volume)';
+
+    // Channel breakdown from genuine records
+    const channelCounts: Record<AcquisitionChannel, number> = {
+      whatsapp: genuineRecords.filter((r) => r.channel === 'whatsapp').length,
+      ambassador: genuineRecords.filter((r) => r.channel === 'ambassador').length,
+      social: genuineRecords.filter((r) => r.channel === 'social').length,
+      direct: genuineRecords.filter((r) => r.channel === 'direct').length,
+      peer: genuineRecords.filter((r) => r.channel === 'peer').length,
+    };
+
+    const channels = [
+      {
+        id: 'whatsapp' as AcquisitionChannel,
+        name: 'WhatsApp Study Groups',
+        icon: 'chat',
+        regs: channelCounts.whatsapp,
+        percentage: genuineCount > 0 ? Number(((channelCounts.whatsapp / genuineCount) * 100).toFixed(1)) : 0,
+        conversionRate: 'Not enough data (Impression tracking not connected)',
+        highlightText: channelCounts.whatsapp > 0 ? `${channelCounts.whatsapp} verified` : 'Awaiting links',
+        highlightType: 'primary' as const,
+      },
+      {
+        id: 'ambassador' as AcquisitionChannel,
+        name: 'Campus Ambassadors',
+        icon: 'badge',
+        regs: channelCounts.ambassador,
+        percentage: genuineCount > 0 ? Number(((channelCounts.ambassador / genuineCount) * 100).toFixed(1)) : 0,
+        conversionRate: 'Not enough data (Impression tracking not connected)',
+        highlightText: `${AMBASSADORS_ROSTER.length} College Reps`,
+        highlightType: 'neutral' as const,
+      },
+      {
+        id: 'social' as AcquisitionChannel,
+        name: 'Instagram / LinkedIn',
+        icon: 'photo_camera',
+        regs: channelCounts.social,
+        percentage: genuineCount > 0 ? Number(((channelCounts.social / genuineCount) * 100).toFixed(1)) : 0,
+        conversionRate: 'Not enough data (Impression tracking not connected)',
+        highlightText: channelCounts.social > 0 ? `${channelCounts.social} verified` : 'Awaiting traffic',
+        highlightType: 'warning' as const,
+      },
+      {
+        id: 'direct' as AcquisitionChannel,
+        name: 'Direct / Peer Referrals',
+        icon: 'language',
+        regs: channelCounts.direct + channelCounts.peer,
+        percentage:
+          genuineCount > 0
+            ? Number((((channelCounts.direct + channelCounts.peer) / genuineCount) * 100).toFixed(1))
+            : 0,
+        conversionRate: 'Not enough data (Impression tracking not connected)',
+        highlightText: 'Notice Boards & Student Links',
+        highlightType: 'neutral' as const,
+      },
+    ];
+
+    // Department penetration from genuine records
+    const deptCount = (branch: AcademicBranch) =>
+      genuineRecords.filter((r) => r.branch === branch).length;
+
+    const departments: DepartmentStat[] = [
+      {
+        branchKey: 'CSE',
+        name: 'Computer Science & Engineering',
+        percentage: genuineCount > 0 ? Number(((deptCount('CSE') / genuineCount) * 100).toFixed(1)) : 0,
+        studentsCount: deptCount('CSE'),
+        colorClass: 'bg-primary',
+      },
+      {
+        branchKey: 'AIML',
+        name: 'Artificial Intelligence & Data Science',
+        percentage: genuineCount > 0 ? Number(((deptCount('AIML') / genuineCount) * 100).toFixed(1)) : 0,
+        studentsCount: deptCount('AIML'),
+        colorClass: 'bg-secondary-container',
+      },
+      {
+        branchKey: 'IT',
+        name: 'Information Technology',
+        percentage: genuineCount > 0 ? Number(((deptCount('IT') / genuineCount) * 100).toFixed(1)) : 0,
+        studentsCount: deptCount('IT'),
+        colorClass: 'bg-primary-container',
+      },
+      {
+        branchKey: 'ECE',
+        name: 'Electronics & Communication (ECE)',
+        percentage: genuineCount > 0 ? Number(((deptCount('ECE') / genuineCount) * 100).toFixed(1)) : 0,
+        studentsCount: deptCount('ECE'),
+        colorClass: 'bg-outline',
+        tag: deptCount('ECE') === 0 ? 'Awaiting RSVPs' : undefined,
+      },
+      {
+        branchKey: 'OTHER',
+        name: 'Mechanical, Civil & Allied',
+        percentage: genuineCount > 0 ? Number(((deptCount('OTHER') / genuineCount) * 100).toFixed(1)) : 0,
+        studentsCount: deptCount('OTHER'),
+        colorClass: 'bg-surface-container-highest',
+      },
+    ];
+
+    // Real-time ambassador ranking based on actual verified referrals
+    const liveAmbassadors = AMBASSADORS_ROSTER.map((amb) => {
+      const genuineAmbRegs = genuineRecords.filter(
+        (r) => r.referredBy?.toUpperCase() === amb.code.toUpperCase()
+      ).length;
+      return {
+        ...amb,
+        verifiedRegs: genuineAmbRegs,
+      };
+    });
+
+    // 7-Day Velocity Chart from genuine registration timestamps
+    const velocity = Array.from({ length: 7 }, (_, i) => {
+      const dayStart = new Date(Date.now() - (6 - i) * 24 * 60 * 60 * 1000);
+      const dayEnd = new Date(Date.now() - (5 - i) * 24 * 60 * 60 * 1000);
+      const dayRegs = genuineRecords.filter((r) => {
+        const d = new Date(r.createdAt);
+        return d >= dayStart && d < dayEnd;
+      });
+      const referrals = dayRegs.filter((r) => r.channel === 'peer' || r.channel === 'ambassador').length;
+      const direct = dayRegs.length - referrals;
+      const dateLabel = i === 6 ? 'Day 7 (Today)' : `Day ${i + 1}`;
+      return {
+        dayNumber: i + 1,
+        dateLabel,
+        directRegs: direct,
+        referralRegs: referrals,
+      };
+    });
+
+    // Rule-based campaign recommendations
+    const recommendations = [
+      {
+        id: 'rec-live',
+        title: 'Launch Peer Referral Challenge Across Active Departments',
+        category: 'Acquisition Acceleration',
+        badge: 'Rule-Based Action',
+        description: `Currently ${genuineCount} of ${target} unique registrations achieved (${percentageAchieved}%). Recommend distributing the smart project card to student WhatsApp class reps to initiate peer study squad multipliers.`,
+        primaryAction: 'Trigger Ambassador Prompt',
+        secondaryAction: 'View Low-Converting Channels',
+        severity: 'urgent' as const,
+      },
+    ];
+
+    return {
+      uniqueRegistrations: genuineCount,
+      target,
+      percentageAchieved,
+      regsToday,
+      regsTodayGrowth,
+      regsRemaining,
+      daysLeft: 5,
+      budgetTotal,
+      budgetSpent,
+      budgetBurnPercentage,
+      costPerRegistration,
+      referralRate,
+      viralLinksCount,
+      viralKFactor,
+      recommendations,
+      velocity,
+      channels,
+      ambassadors: liveAmbassadors,
+      departments,
+      recentRegistrations: genuineRecords.slice(0, 10),
+      isDemoMode: false,
+      genuineRegistrationsCount: genuineCount,
+      demoRegistrationsCount: demoRecords.length,
+    };
+  }
+
+  // -------------------------------------------------------------------------
+  // 2. SIMULATED DEMO BASELINE PROTOTYPE (Matching Stitch Dashboard reference)
+  // -------------------------------------------------------------------------
   const baseDemoCount = 342;
   const genuineCount = genuineRecords.length;
-
-  const totalUnique = includeDemo ? baseDemoCount + genuineCount : genuineCount;
+  const totalUnique = baseDemoCount + genuineCount;
   const percentageAchieved = Number(((totalUnique / target) * 100).toFixed(1));
   const regsRemaining = Math.max(0, target - totalUnique);
 
-  // Spend model:
-  // Baseline demo spend is ₹1,240 out of ₹2,000 budget
-  // Variable spend per new registration is ~₹2.50
-  const budgetSpent = includeDemo ? Math.min(2000, 1240 + genuineCount * 2) : Math.min(2000, genuineCount * 3.5);
-  const costPerRegistration = totalUnique > 0 ? Number((budgetSpent / totalUnique).toFixed(2)) : 0;
+  const budgetSpent = Math.min(2000, 1240 + genuineCount * 2);
+  const costPerRegistration = Number((budgetSpent / totalUnique).toFixed(2));
   const budgetBurnPercentage = Number(((budgetSpent / budgetTotal) * 100).toFixed(1));
+  const regsToday = 48 + genuineCount;
 
-  // Today registrations
-  const regsToday = includeDemo ? 48 + genuineCount : genuineCount;
-
-  // Velocity days (Last 7 days)
   const velocity = [
     { dayNumber: 1, dateLabel: 'Day 1 (Oct 19)', directRegs: 18, referralRegs: 6 },
     { dayNumber: 2, dateLabel: 'Day 2 (Oct 20)', directRegs: 24, referralRegs: 8 },
@@ -460,24 +681,22 @@ export async function getDashboardStats(includeDemo: boolean = true): Promise<Da
     { dayNumber: 4, dateLabel: 'Day 4 (Oct 22)', directRegs: 40, referralRegs: 15 },
     { dayNumber: 5, dateLabel: 'Day 5 (Oct 23)', directRegs: 42, referralRegs: 19 },
     { dayNumber: 6, dateLabel: 'Day 6 (Oct 24)', directRegs: 41, referralRegs: 18 },
-    { dayNumber: 7, dateLabel: 'Day 7 (Today)', directRegs: 47 + Math.floor(genuineCount * 0.6), referralRegs: 20 + Math.ceil(genuineCount * 0.4) },
+    {
+      dayNumber: 7,
+      dateLabel: 'Day 7 (Today)',
+      directRegs: 47 + Math.floor(genuineCount * 0.6),
+      referralRegs: 20 + Math.ceil(genuineCount * 0.4),
+    },
   ];
-
-  // Channel Breakdown
-  const totalWithChannels = Math.max(1, totalUnique);
-  const whatsappRegs = includeDemo ? 164 + Math.round(genuineCount * 0.4) : Math.round(genuineCount * 0.45);
-  const ambassadorRegs = includeDemo ? 98 + Math.round(genuineCount * 0.3) : Math.round(genuineCount * 0.3);
-  const socialRegs = includeDemo ? 52 + Math.round(genuineCount * 0.15) : Math.round(genuineCount * 0.15);
-  const directRegs = Math.max(0, totalUnique - (whatsappRegs + ambassadorRegs + socialRegs));
 
   const channels = [
     {
       id: 'whatsapp' as AcquisitionChannel,
       name: 'WhatsApp Study Groups',
       icon: 'chat',
-      regs: whatsappRegs,
-      percentage: Number(((whatsappRegs / totalWithChannels) * 100).toFixed(1)),
-      conversionRate: '32.0%',
+      regs: 164 + Math.round(genuineCount * 0.4),
+      percentage: 47.9,
+      conversionRate: '32.0% (Simulated)',
       highlightText: 'Highest Yield',
       highlightType: 'primary' as const,
     },
@@ -485,9 +704,9 @@ export async function getDashboardStats(includeDemo: boolean = true): Promise<Da
       id: 'ambassador' as AcquisitionChannel,
       name: 'Campus Ambassadors',
       icon: 'badge',
-      regs: ambassadorRegs,
-      percentage: Number(((ambassadorRegs / totalWithChannels) * 100).toFixed(1)),
-      conversionRate: '24.1%',
+      regs: 98 + Math.round(genuineCount * 0.3),
+      percentage: 28.6,
+      conversionRate: '24.1% (Simulated)',
       highlightText: '14 College Reps',
       highlightType: 'neutral' as const,
     },
@@ -495,9 +714,9 @@ export async function getDashboardStats(includeDemo: boolean = true): Promise<Da
       id: 'social' as AcquisitionChannel,
       name: 'Instagram / LinkedIn',
       icon: 'photo_camera',
-      regs: socialRegs,
-      percentage: Number(((socialRegs / totalWithChannels) * 100).toFixed(1)),
-      conversionRate: '12.4%',
+      regs: 52 + Math.round(genuineCount * 0.15),
+      percentage: 15.2,
+      conversionRate: '12.4% (Simulated)',
       highlightText: 'Underperforming CAC',
       highlightType: 'warning' as const,
     },
@@ -505,15 +724,14 @@ export async function getDashboardStats(includeDemo: boolean = true): Promise<Da
       id: 'direct' as AcquisitionChannel,
       name: 'Direct / College Portals',
       icon: 'language',
-      regs: directRegs,
-      percentage: Number(((directRegs / totalWithChannels) * 100).toFixed(1)),
-      conversionRate: '19.0%',
+      regs: 28 + Math.round(genuineCount * 0.15),
+      percentage: 8.3,
+      conversionRate: '19.0% (Simulated)',
       highlightText: 'Notice Boards & LMS',
       highlightType: 'neutral' as const,
     },
   ];
 
-  // Department distribution
   const departments: DepartmentStat[] = [
     {
       branchKey: 'CSE',
@@ -553,37 +771,8 @@ export async function getDashboardStats(includeDemo: boolean = true): Promise<Da
     },
   ];
 
-  // Referral metrics
-  const viralLinksCount = includeDemo ? 98 + genuineCount : genuineRecords.filter((r) => r.channel === 'peer').length;
-  const referralRate = Number(((viralLinksCount / Math.max(1, totalUnique)) * 100).toFixed(1));
-
-  // Dynamic Rule-based Campaign Recommendations
-  const recommendations: DashboardStats['recommendations'] = [];
-
-  if (totalUnique < 250) {
-    recommendations.push({
-      id: 'rec-volume',
-      title: 'Accelerate Campus Ambassador WhatsApp Distribution',
-      category: 'Volume Acceleration',
-      badge: 'High Priority',
-      description: `Current registration count is at ${totalUnique} of 500 target (${percentageAchieved}%). Recommend activating peer WhatsApp batches across VTU and PES communities to capture high-intent evening study slots.`,
-      primaryAction: 'Trigger Ambassador Prompt',
-      secondaryAction: 'View Low-Converting Channels',
-      severity: 'urgent',
-    });
-  } else if (costPerRegistration > 4.5) {
-    recommendations.push({
-      id: 'rec-cac',
-      title: 'Optimize Underperforming Social Ad Spend',
-      category: 'CAC Optimization',
-      badge: 'Budget Efficiency',
-      description: `Instagram / LinkedIn channel conversion is at 12.4% with inflated CAC. Reallocate ₹300 contingency budget towards verified peer ambassador perks for immediate conversion lift.`,
-      primaryAction: 'Reallocate Budget',
-      secondaryAction: 'Review Channel CAC',
-      severity: 'growth',
-    });
-  } else {
-    recommendations.push({
+  const recommendations = [
+    {
       id: 'rec-saturation',
       title: 'Channel Saturation & Ambassador Activation',
       category: 'Channel Saturation & Ambassador Activation',
@@ -592,35 +781,32 @@ export async function getDashboardStats(includeDemo: boolean = true): Promise<Da
         'ECE and IT departments show 42% lower adoption despite high click-throughs on WhatsApp. Meanwhile, 6 of 14 student ambassadors have 0 active shares. Recommend dispatching the WhatsApp Batchmate Template to the 6 inactive ambassadors and triggering targeted departmental email alerts.',
       primaryAction: 'Trigger Ambassador Prompt',
       secondaryAction: 'View Low-Converting Channels',
-      severity: 'info',
-    });
-  }
-
-  // Recent 10 registrations
-  const recentRegistrations = activeRecords.slice(0, 10);
+      severity: 'info' as const,
+    },
+  ];
 
   return {
     uniqueRegistrations: totalUnique,
     target,
     percentageAchieved,
     regsToday,
-    regsTodayGrowth: '+18%',
+    regsTodayGrowth: '+18% (Simulated Baseline)',
     regsRemaining,
     daysLeft: 5,
     budgetTotal,
     budgetSpent,
     budgetBurnPercentage,
-    costPerRegistration,
-    referralRate,
-    viralLinksCount,
-    viralKFactor: '1.4x',
+    costPerRegistration: `₹${costPerRegistration}`,
+    referralRate: 28.6,
+    viralLinksCount: 98 + genuineCount,
+    viralKFactor: '1.4x (Simulated)',
     recommendations,
     velocity,
     channels,
     ambassadors: AMBASSADORS_ROSTER,
     departments,
-    recentRegistrations,
-    isDemoMode: includeDemo,
+    recentRegistrations: allRegistrations.slice(0, 10),
+    isDemoMode: true,
     genuineRegistrationsCount: genuineCount,
     demoRegistrationsCount: demoRecords.length,
   };

@@ -109,10 +109,10 @@ export interface DashboardStats {
   regsRemaining: number;
   daysLeft: number;
   budgetTotal: number;
-  budgetSpent: number;
-  budgetBurnPercentage: number;
-  costPerRegistration: number;
-  referralRate: number;
+  budgetSpent: number | string;
+  budgetBurnPercentage: number | string;
+  costPerRegistration: number | string;
+  referralRate: number | string;
   viralLinksCount: number;
   viralKFactor: string;
   recommendations: CampaignRecommendation[];

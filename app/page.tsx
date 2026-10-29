@@ -335,7 +335,7 @@ function ProjectMatcherContent() {
                       <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-surface-container-low font-label-sm text-label-sm text-on-surface font-semibold">
                         <span className="material-symbols-outlined text-[16px] text-primary">speed</span>
                         <span>
-                          60 Mins Feasibility: <strong>{currentBlueprint.feasibility}</strong>
+                          60 Mins Feasibility: <strong>{currentBlueprint.feasibility}</strong> (Estimated)
                         </span>
                       </div>
                     </div>
@@ -416,15 +416,15 @@ function ProjectMatcherContent() {
                   <div className="grid grid-cols-3 gap-space-md">
                     <div className="bg-surface-container-lowest p-space-md rounded-xl shadow-sm text-center border border-surface-container-high/40">
                       <div className="font-headline-md text-headline-md font-bold text-primary">12,400+</div>
-                      <div className="font-body-sm text-body-sm text-on-surface-variant">Students Enrolled</div>
+                      <div className="font-body-sm text-body-sm text-on-surface-variant">Past Masterclass Learners</div>
                     </div>
                     <div className="bg-surface-container-lowest p-space-md rounded-xl shadow-sm text-center border border-surface-container-high/40">
                       <div className="font-headline-md text-headline-md font-bold text-primary">4.9/5</div>
-                      <div className="font-body-sm text-body-sm text-on-surface-variant">Workshop Rating</div>
+                      <div className="font-body-sm text-body-sm text-on-surface-variant">Past Participant Rating</div>
                     </div>
                     <div className="bg-surface-container-lowest p-space-md rounded-xl shadow-sm text-center border border-surface-container-high/40">
                       <div className="font-headline-md text-headline-md font-bold text-primary">100% Free</div>
-                      <div className="font-body-sm text-body-sm text-on-surface-variant">No Hidden Fee</div>
+                      <div className="font-body-sm text-body-sm text-on-surface-variant">Sponsored Workshop</div>
                     </div>
                   </div>
                 </div>

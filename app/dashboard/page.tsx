@@ -7,7 +7,8 @@ import { DashboardStats, Registration } from '@/types';
 export default function OrganizerDashboardPage() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
-  const [includeDemo, setIncludeDemo] = useState(true);
+  // Default to false: strictly show genuine registrations by default
+  const [includeDemo, setIncludeDemo] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState('Overview & Trajectory');
   const [blitzModalOpen, setBlitzModalOpen] = useState(false);
@@ -366,16 +367,18 @@ export default function OrganizerDashboardPage() {
                   </div>
                   <div className="flex items-baseline gap-2">
                     <span className="font-headline-lg text-headline-lg font-bold text-on-surface">
-                      {stats?.regsToday || 48}
+                      {stats?.regsToday ?? 0}
                     </span>
                     <span className="font-label-sm text-label-sm text-primary font-semibold flex items-center">
-                      <span className="material-symbols-outlined text-[16px]">trending_up</span> +18%
+                      <span className="material-symbols-outlined text-[16px]">trending_up</span> {stats?.regsTodayGrowth || '+18%'}
                     </span>
                   </div>
                   <div className="mt-3 flex items-center justify-between text-on-surface-variant">
-                    <span className="font-body-sm text-body-sm">vs 41 yesterday</span>
+                    <span className="font-body-sm text-body-sm">
+                      {includeDemo ? 'vs 41 yesterday' : `${stats?.regsToday || 0} in last 24h`}
+                    </span>
                     <span className="font-badge-caption text-badge-caption text-on-surface-variant">
-                      {includeDemo ? '(Demo Data)' : '(Genuine)'}
+                      {includeDemo ? '(Demo Baseline)' : '(Genuine)'}
                     </span>
                   </div>
                 </div>
@@ -390,7 +393,7 @@ export default function OrganizerDashboardPage() {
                   </div>
                   <div>
                     <span className="font-headline-lg text-headline-lg font-bold text-on-surface">
-                      {stats?.regsRemaining ?? 158}
+                      {stats?.regsRemaining ?? 500}
                     </span>
                     <p className="font-body-sm text-body-sm text-on-surface-variant font-medium">needed to cross target</p>
                   </div>
@@ -399,7 +402,7 @@ export default function OrganizerDashboardPage() {
                       5 Days Left
                     </span>
                     <span className="font-badge-caption text-badge-caption text-on-surface-variant">
-                      {includeDemo ? '(Demo Data)' : '(Genuine)'}
+                      {includeDemo ? '(Demo Baseline)' : '(Genuine)'}
                     </span>
                   </div>
                 </div>
@@ -415,20 +418,24 @@ export default function OrganizerDashboardPage() {
                   <div>
                     <div className="flex items-baseline gap-1.5">
                       <span className="font-headline-lg text-headline-lg font-bold text-on-surface">
-                        ₹{stats?.budgetSpent?.toLocaleString('en-IN') || '1,240'}
+                        {typeof stats?.budgetSpent === 'number'
+                          ? `₹${stats.budgetSpent.toLocaleString('en-IN')}`
+                          : stats?.budgetSpent || '₹0'}
                       </span>
                       <span className="font-label-sm text-label-sm text-on-surface-variant">/ ₹2,000</span>
                     </div>
                     <p className="font-body-sm text-body-sm text-primary font-semibold mt-0.5">
-                      ₹{stats?.costPerRegistration || '3.63'} / reg. CAC
+                      {stats?.costPerRegistration || 'Not enough data (Spend unrecorded)'}
                     </p>
                   </div>
                   <div className="mt-3 flex items-center justify-between">
                     <span className="font-body-sm text-body-sm text-on-surface-variant">
-                      {stats?.budgetBurnPercentage || '62.0'}% burn
+                      {typeof stats?.budgetBurnPercentage === 'number'
+                        ? `${stats.budgetBurnPercentage}% burn`
+                        : stats?.budgetBurnPercentage || '0% burn'}
                     </span>
                     <span className="font-badge-caption text-badge-caption text-on-surface-variant">
-                      {includeDemo ? '(Demo Data)' : '(Genuine)'}
+                      {includeDemo ? '(Demo Baseline)' : '(Genuine)'}
                     </span>
                   </div>
                 </div>
@@ -443,18 +450,18 @@ export default function OrganizerDashboardPage() {
                   </div>
                   <div>
                     <span className="font-headline-lg text-headline-lg font-bold text-on-surface">
-                      {stats?.referralRate || 28.6}%
+                      {typeof stats?.referralRate === 'number' ? `${stats.referralRate}%` : stats?.referralRate || '0%'}
                     </span>
                     <p className="font-body-sm text-body-sm text-on-surface-variant font-medium">
-                      {stats?.viralLinksCount || 98} student viral links
+                      {stats?.viralLinksCount || 0} student viral links
                     </p>
                   </div>
                   <div className="mt-3 flex items-center justify-between">
                     <span className="px-2 py-0.5 rounded bg-secondary-container/40 text-on-secondary-container font-label-sm text-label-sm font-semibold">
-                      1.4x Viral K-factor
+                      {stats?.viralKFactor || 'Not enough data'}
                     </span>
                     <span className="font-badge-caption text-badge-caption text-on-surface-variant">
-                      {includeDemo ? '(Demo Data)' : '(Genuine)'}
+                      {includeDemo ? '(Demo Baseline)' : '(Genuine)'}
                     </span>
                   </div>
                 </div>

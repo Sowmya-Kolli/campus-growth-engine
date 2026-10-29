@@ -6,7 +6,8 @@ export const dynamic = 'force-dynamic';
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
-    const includeDemo = searchParams.get('demo') !== 'false';
+    // Default to false: genuine verified registrations only, unless explicitly requested via ?demo=true
+    const includeDemo = searchParams.get('demo') === 'true';
 
     const stats = await getDashboardStats(includeDemo);
 

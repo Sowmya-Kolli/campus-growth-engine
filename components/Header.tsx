@@ -66,7 +66,7 @@ export default function Header() {
         <div className="flex items-center gap-space-md shrink-0">
           <div className="hidden xl:flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-container-low text-on-surface-variant font-label-sm text-label-sm">
             <span className="material-symbols-outlined text-[16px] text-primary">calendar_clock</span>
-            <span>Workshop: Saturday, 6:00 PM IST (60 Mins)</span>
+            <span>Workshop: Saturday, 6:00 PM IST (Target Cohort)</span>
           </div>
 
           <a

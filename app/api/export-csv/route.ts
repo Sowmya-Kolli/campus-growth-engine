@@ -6,7 +6,8 @@ export const dynamic = 'force-dynamic';
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
-    const includeDemo = searchParams.get('demo') !== 'false';
+    // Default to false: export strictly genuine student registrations unless ?demo=true is explicitly passed
+    const includeDemo = searchParams.get('demo') === 'true';
 
     let records = await getAllRegistrations();
     if (!includeDemo) {
