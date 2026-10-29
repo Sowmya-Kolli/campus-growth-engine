@@ -8,11 +8,18 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     // Default to false: export strictly genuine student registrations unless ?demo=true is explicitly passed
     const includeDemo = searchParams.get('demo') === 'true';
+    const excludeTest = searchParams.get('excludeTest') === 'true';
 
     let records = await getAllRegistrations();
     if (!includeDemo) {
       records = records.filter((r) => !r.isDemo);
     }
+    if (excludeTest) {
+      const { isTestRegistration } = await import('@/lib/db');
+      records = records.filter((r) => !isTestRegistration(r));
+    }
+
+    const { isTestRegistration } = await import('@/lib/db');
 
     const headers = [
       'Ticket Number',
@@ -27,7 +34,7 @@ export async function GET(req: NextRequest) {
       'Referred By',
       'Acquisition Channel',
       'Registered At',
-      'Is Demo',
+      'Status / Audit',
     ];
 
     const escapeCsv = (str: string | undefined | null) => {
@@ -36,21 +43,30 @@ export async function GET(req: NextRequest) {
       return `"${clean}"`;
     };
 
-    const rows = records.map((r) => [
-      escapeCsv(r.ticketNumber),
-      escapeCsv(r.name),
-      escapeCsv(r.email),
-      escapeCsv(r.college),
-      escapeCsv(r.branchLabel || r.branch),
-      escapeCsv(r.interest),
-      escapeCsv(r.codingLevel),
-      escapeCsv(r.projectTitle),
-      escapeCsv(r.referralCode),
-      escapeCsv(r.referredBy || 'None (Direct)'),
-      escapeCsv(r.channelLabel || r.channel),
-      escapeCsv(r.createdAt),
-      escapeCsv(r.isDemo ? 'Yes (Demo)' : 'No (Genuine)'),
-    ]);
+    const rows = records.map((r) => {
+      let statusLabel = 'Genuine';
+      if (r.isDemo) {
+        statusLabel = 'Simulated Demo';
+      } else if (isTestRegistration(r)) {
+        statusLabel = 'Test Record';
+      }
+
+      return [
+        escapeCsv(r.ticketNumber),
+        escapeCsv(r.name),
+        escapeCsv(r.email),
+        escapeCsv(r.college),
+        escapeCsv(r.branchLabel || r.branch),
+        escapeCsv(r.interest),
+        escapeCsv(r.codingLevel),
+        escapeCsv(r.projectTitle),
+        escapeCsv(r.referralCode),
+        escapeCsv(r.referredBy || 'None (Direct)'),
+        escapeCsv(r.channelLabel || r.channel),
+        escapeCsv(r.createdAt),
+        escapeCsv(statusLabel),
+      ];
+    });
 
     const csvContent = [headers.join(','), ...rows.map((row) => row.join(','))].join('\n');
 

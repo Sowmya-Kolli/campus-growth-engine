@@ -8,8 +8,9 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     // Default to false: genuine verified registrations only, unless explicitly requested via ?demo=true
     const includeDemo = searchParams.get('demo') === 'true';
+    const excludeTest = searchParams.get('excludeTest') === 'true';
 
-    const stats = await getDashboardStats(includeDemo);
+    const stats = await getDashboardStats(includeDemo, excludeTest);
 
     return NextResponse.json(stats, { status: 200 });
   } catch (err: any) {

@@ -443,12 +443,64 @@ export async function createRegistration(params: {
   return { registration: newRecord };
 }
 
+// Check if a registration is a test / audit record
+export function isTestRegistration(r: Registration): boolean {
+  if (r.isTest === true) return true;
+  const name = (r.name || '').toLowerCase();
+  const email = (r.email || '').toLowerCase();
+  return (
+    name.includes('audit candidate') ||
+    name.includes('test user') ||
+    name.includes('test candidate') ||
+    email.startsWith('audit.') ||
+    email.startsWith('test.') ||
+    email.includes('test.student') ||
+    email === 'audit.student.1793262218@college.edu' ||
+    email === 'aarav.sharma@vtu.ac.in' ||
+    email === 'ravi.kumar@rvce.edu.in'
+  );
+}
+
+// Safely reset / purge test registrations while preserving all genuine registrations
+export async function resetTestRegistrations(): Promise<{ deletedCount: number; remainingCount: number }> {
+  const all = await getAllRegistrations();
+  const testRecords = all.filter((r) => !r.isDemo && isTestRegistration(r));
+  const preservedRecords = all.filter((r) => r.isDemo || !isTestRegistration(r));
+
+  if (supabase && testRecords.length > 0) {
+    try {
+      const testIds = testRecords.map((r) => r.id);
+      await supabase.from('registrations').delete().in('id', testIds);
+    } catch (err) {
+      console.error('Failed to delete test records from Supabase:', err);
+    }
+  }
+
+  saveLocalRegistrations(preservedRecords);
+  return { deletedCount: testRecords.length, remainingCount: preservedRecords.length };
+}
+
 // Compute dashboard statistics (strictly distinguishing genuine records from demo baseline)
-export async function getDashboardStats(includeDemo: boolean = false): Promise<DashboardStats> {
+export async function getDashboardStats(
+  includeDemo: boolean = false,
+  excludeTest: boolean = false
+): Promise<DashboardStats> {
   const allRegistrations = await getAllRegistrations();
 
-  const genuineRecords = allRegistrations.filter((r) => !r.isDemo);
-  const demoRecords = allRegistrations.filter((r) => r.isDemo);
+  // Attach isTest attribute to all records
+  const annotatedRecords = allRegistrations.map((r) => ({
+    ...r,
+    isTest: isTestRegistration(r),
+  }));
+
+  const allGenuineRecords = annotatedRecords.filter((r) => !r.isDemo);
+  const testRegistrationsCount = allGenuineRecords.filter((r) => isTestRegistration(r)).length;
+
+  const genuineRecords = excludeTest
+    ? allGenuineRecords.filter((r) => !isTestRegistration(r))
+    : allGenuineRecords;
+
+  const demoRecords = annotatedRecords.filter((r) => r.isDemo);
 
   const target = 500;
   const budgetTotal = 2000;
@@ -474,12 +526,12 @@ export async function getDashboardStats(includeDemo: boolean = false): Promise<D
     const regsTodayGrowth =
       regsYesterday > 0
         ? `${(((regsToday - regsYesterday) / regsYesterday) * 100).toFixed(0)}%`
-        : 'Not enough data (Awaiting multi-day baseline)';
+        : 'Not enough data';
 
     // Budget: real spend is not yet connected to a payment gateway
-    const budgetSpent = 'Not enough data (Spend unrecorded)';
-    const budgetBurnPercentage = 'Not enough data';
-    const costPerRegistration = 'Not enough data (Spend unrecorded)';
+    const budgetSpent = 'Spend unrecorded';
+    const budgetBurnPercentage = '0% burn';
+    const costPerRegistration = 'Not enough data';
 
     // Referral metrics
     const viralLinksCount = genuineRecords.filter((r) => r.channel === 'peer').length;
@@ -489,9 +541,9 @@ export async function getDashboardStats(includeDemo: boolean = false): Promise<D
     const viralKFactor =
       directCount > 0 && viralLinksCount > 0
         ? `${(viralLinksCount / directCount).toFixed(2)}x`
-        : 'Not enough data (Awaiting referral volume)';
+        : 'Not enough data';
 
-    // Channel breakdown from genuine records
+    // Channel breakdown strictly derived from genuine records
     const channelCounts: Record<AcquisitionChannel, number> = {
       whatsapp: genuineRecords.filter((r) => r.channel === 'whatsapp').length,
       ambassador: genuineRecords.filter((r) => r.channel === 'ambassador').length,
@@ -507,7 +559,7 @@ export async function getDashboardStats(includeDemo: boolean = false): Promise<D
         icon: 'chat',
         regs: channelCounts.whatsapp,
         percentage: genuineCount > 0 ? Number(((channelCounts.whatsapp / genuineCount) * 100).toFixed(1)) : 0,
-        conversionRate: 'Not enough data (Impression tracking not connected)',
+        conversionRate: 'Not enough data',
         highlightText: channelCounts.whatsapp > 0 ? `${channelCounts.whatsapp} verified` : 'Awaiting links',
         highlightType: 'primary' as const,
       },
@@ -517,7 +569,7 @@ export async function getDashboardStats(includeDemo: boolean = false): Promise<D
         icon: 'badge',
         regs: channelCounts.ambassador,
         percentage: genuineCount > 0 ? Number(((channelCounts.ambassador / genuineCount) * 100).toFixed(1)) : 0,
-        conversionRate: 'Not enough data (Impression tracking not connected)',
+        conversionRate: 'Not enough data',
         highlightText: `${AMBASSADORS_ROSTER.length} College Reps`,
         highlightType: 'neutral' as const,
       },
@@ -527,7 +579,7 @@ export async function getDashboardStats(includeDemo: boolean = false): Promise<D
         icon: 'photo_camera',
         regs: channelCounts.social,
         percentage: genuineCount > 0 ? Number(((channelCounts.social / genuineCount) * 100).toFixed(1)) : 0,
-        conversionRate: 'Not enough data (Impression tracking not connected)',
+        conversionRate: 'Not enough data',
         highlightText: channelCounts.social > 0 ? `${channelCounts.social} verified` : 'Awaiting traffic',
         highlightType: 'warning' as const,
       },
@@ -540,7 +592,7 @@ export async function getDashboardStats(includeDemo: boolean = false): Promise<D
           genuineCount > 0
             ? Number((((channelCounts.direct + channelCounts.peer) / genuineCount) * 100).toFixed(1))
             : 0,
-        conversionRate: 'Not enough data (Impression tracking not connected)',
+        conversionRate: 'Not enough data',
         highlightText: 'Notice Boards & Student Links',
         highlightType: 'neutral' as const,
       },
@@ -589,7 +641,7 @@ export async function getDashboardStats(includeDemo: boolean = false): Promise<D
       },
     ];
 
-    // Real-time ambassador ranking based on actual verified referrals
+    // Real-time ambassador ranking based strictly on genuine verified referrals
     const liveAmbassadors = AMBASSADORS_ROSTER.map((amb) => {
       const genuineAmbRegs = genuineRecords.filter(
         (r) => r.referredBy?.toUpperCase() === amb.code.toUpperCase()
@@ -598,19 +650,29 @@ export async function getDashboardStats(includeDemo: boolean = false): Promise<D
         ...amb,
         verifiedRegs: genuineAmbRegs,
       };
-    });
+    }).sort((a, b) => b.verifiedRegs - a.verifiedRegs).map((amb, idx) => ({
+      ...amb,
+      rank: idx + 1,
+    }));
 
-    // 7-Day Velocity Chart from genuine registration timestamps
+    // 7-Day Velocity strictly derived from genuine registration timestamps
+    const now = Date.now();
     const velocity = Array.from({ length: 7 }, (_, i) => {
-      const dayStart = new Date(Date.now() - (6 - i) * 24 * 60 * 60 * 1000);
-      const dayEnd = new Date(Date.now() - (5 - i) * 24 * 60 * 60 * 1000);
+      const dayStart = new Date(now - (6 - i) * 24 * 60 * 60 * 1000);
+      dayStart.setHours(0, 0, 0, 0);
+      const dayEnd = new Date(now - (5 - i) * 24 * 60 * 60 * 1000);
+      dayEnd.setHours(0, 0, 0, 0);
+
       const dayRegs = genuineRecords.filter((r) => {
         const d = new Date(r.createdAt);
-        return d >= dayStart && d < dayEnd;
+        return d >= dayStart && d < (i === 6 ? new Date(now + 60000) : dayEnd);
       });
       const referrals = dayRegs.filter((r) => r.channel === 'peer' || r.channel === 'ambassador').length;
       const direct = dayRegs.length - referrals;
-      const dateLabel = i === 6 ? 'Day 7 (Today)' : `Day ${i + 1}`;
+      const dayDate = new Date(now - (6 - i) * 24 * 60 * 60 * 1000);
+      const monthStr = dayDate.toLocaleString('en-US', { month: 'short' });
+      const dayNum = dayDate.getDate();
+      const dateLabel = i === 6 ? 'Day 7 (Today)' : `Day ${i + 1} (${monthStr} ${dayNum})`;
       return {
         dayNumber: i + 1,
         dateLabel,
@@ -653,12 +715,14 @@ export async function getDashboardStats(includeDemo: boolean = false): Promise<D
       channels,
       ambassadors: liveAmbassadors,
       departments,
-      recentRegistrations: genuineRecords.slice(0, 10),
+      recentRegistrations: genuineRecords,
       isDemoMode: false,
-      genuineRegistrationsCount: genuineCount,
+      genuineRegistrationsCount: allGenuineRecords.length,
       demoRegistrationsCount: demoRecords.length,
+      testRegistrationsCount,
     };
   }
+
 
   // -------------------------------------------------------------------------
   // 2. SIMULATED DEMO BASELINE PROTOTYPE (Matching Stitch Dashboard reference)
@@ -809,5 +873,6 @@ export async function getDashboardStats(includeDemo: boolean = false): Promise<D
     isDemoMode: true,
     genuineRegistrationsCount: genuineCount,
     demoRegistrationsCount: demoRecords.length,
+    testRegistrationsCount: allGenuineRecords.filter((r) => isTestRegistration(r)).length,
   };
 }

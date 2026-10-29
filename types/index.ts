@@ -46,6 +46,7 @@ export interface Registration {
   channelLabel: string;
   createdAt: string;
   isDemo?: boolean;
+  isTest?: boolean;
 }
 
 export interface Ambassador {
@@ -124,4 +125,5 @@ export interface DashboardStats {
   isDemoMode: boolean;
   genuineRegistrationsCount: number;
   demoRegistrationsCount: number;
+  testRegistrationsCount: number;
 }
