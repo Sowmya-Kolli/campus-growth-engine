@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><title>Campus Growth Engine - Console</title><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={"darkMode":"class","theme":{"extend":{"colors":{"on-surface":"#131b2e","on-secondary":"#ffffff","inverse-on-surface":"#eef0ff","on-primary-container":"#f5fff7","surface-tint":"#006c4a","outline":"#6d7a72","secondary":"#006a61","tertiary":"#006947","outline-variant":"#bccac0","surface-container":"#eaedff","inverse-surface":"#283044","on-secondary-container":"#006f66","on-background":"#131b2e","on-error":"#ffffff","surface-variant":"#dae2fd","on-secondary-fixed-variant":"#005049","secondary-container":"#86f2e4","surface-container-lowest":"#ffffff","tertiary-fixed":"#6ffbbe","surface-container-highest":"#dae2fd","surface-dim":"#d2d9f4","surface":"#faf8ff","error":"#ba1a1a","surface-container-high":"#e2e7ff","on-primary":"#ffffff","inverse-primary":"#68dba9","error-container":"#ffdad6","secondary-fixed":"#89f5e7","primary-container":"#00855d","on-tertiary-container":"#f5fff6","on-error-container":"#93000a","on-primary-fixed-variant":"#005137","tertiary-fixed-dim":"#4edea3","on-tertiary":"#ffffff","secondary-fixed-dim":"#6bd8cb","background":"#faf8ff","on-secondary-fixed":"#00201d","primary":"#006948","surface-bright":"#faf8ff","on-primary-fixed":"#002114","primary-fixed":"#85f8c4","on-surface-variant":"#3d4a42","surface-container-low":"#f2f3ff","tertiary-container":"#00855b","primary-fixed-dim":"#68dba9","on-tertiary-fixed":"#002113","on-tertiary-fixed-variant":"#005236"},"borderRadius":{"DEFAULT":"0.25rem","lg":"0.5rem","xl":"0.75rem","full":"9999px"},"spacing":{"margin":"2rem","space-xs":"0.25rem","gutter-mobile":"1rem","margin-mobile":"1rem","space-lg":"1.5rem","gutter":"1.5rem","space-xl":"2.5rem","space-md":"1rem","space-sm":"0.5rem"},"fontFamily":{"body-sm":["Plus Jakarta Sans"],"headline-sm":["Plus Jakarta Sans"],"badge-caption":["Plus Jakarta Sans"],"label-sm":["Plus Jakarta Sans"],"headline-lg":["Plus Jakarta Sans"],"body-lg":["Plus Jakarta Sans"],"display-xl-mobile":["Plus Jakarta Sans"],"display-xl":["Plus Jakarta Sans"],"headline-lg-mobile":["Plus Jakarta Sans"],"label-md":["Plus Jakarta Sans"],"headline-md":["Plus Jakarta Sans"],"body-md":["Plus Jakarta Sans"]},"fontSize":{"body-sm":["13px",{"lineHeight":"20px","letterSpacing":"0.005em","fontWeight":"400"}],"headline-sm":["20px",{"lineHeight":"28px","letterSpacing":"-0.01em","fontWeight":"600"}],"badge-caption":["11px",{"lineHeight":"14px","letterSpacing":"0.06em","fontWeight":"700"}],"label-sm":["12px",{"lineHeight":"16px","letterSpacing":"0.02em","fontWeight":"600"}],"headline-lg":["36px",{"lineHeight":"44px","letterSpacing":"-0.02em","fontWeight":"700"}],"body-lg":["18px",{"lineHeight":"28px","letterSpacing":"-0.005em","fontWeight":"400"}],"display-xl-mobile":["36px",{"lineHeight":"44px","letterSpacing":"-0.025em","fontWeight":"800"}],"display-xl":["56px",{"lineHeight":"64px","letterSpacing":"-0.03em","fontWeight":"800"}],"headline-lg-mobile":["28px",{"lineHeight":"36px","letterSpacing":"-0.015em","fontWeight":"700"}],"label-md":["14px",{"lineHeight":"20px","letterSpacing":"0.01em","fontWeight":"600"}],"headline-md":["24px",{"lineHeight":"32px","letterSpacing":"-0.015em","fontWeight":"600"}],"body-md":["15px",{"lineHeight":"24px","letterSpacing":"0em","fontWeight":"400"}]}}}}</script></head><body class="bg-background font-body-md text-on-surface antialiased"><aside class="fixed left-0 top-0 h-full w-64 bg-surface-container-lowest border-r border-surface-container-high/80 z-50 flex flex-col pt-space-lg pb-space-lg"><div class="px-space-lg mb-space-lg flex items-center gap-space-sm"><img alt="Campus Growth Engine Logo" class="h-7 w-auto object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA9AfHNEPzs5GRVdSuvZpRdxWCo5NP3dXDxCydhH_q2yRgj-EnmWhqnJr9piP1ECr_p1MBAwi1OU9-ETMH7iFz8Bpgy1Jjr57l6Mb60-sVBlmE0VmRUMaZu9qPUMH0i3x2Gpf5SoU2pmrQKjqSmX4DJz0DsK48Wy7W-3vW1cvmg5L8in2m63amOADaPOWUhoGFr9jMvwc4nYgEtOnFUusxF_60CTJ_xRjOmtU0Eez5g"/><span class="font-label-md text-label-md font-bold text-on-surface tracking-tight">Campus Console</span></div><nav class="flex-1 px-space-md flex flex-col gap-1" data-active-classes="bg-primary-container text-on-primary-container font-semibold rounded-lg"><a aria-current="page" class="flex items-center gap-space-sm px-3 py-2 transition-colors bg-primary-container text-on-primary-container font-semibold rounded-lg" data-path="organizer-dashboard" href="#"><span class="material-symbols-outlined text-[20px]">analytics</span>Organizer Dashboard</a><a class="flex items-center gap-space-sm px-3 py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors font-label-md text-label-md" data-path="cohort-management" href="#"><span class="material-symbols-outlined text-[20px]">groups</span>Cohort Management</a><a class="flex items-center gap-space-sm px-3 py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors font-label-md text-label-md" data-path="blueprint-analytics" href="#"><span class="material-symbols-outlined text-[20px]">monitoring</span>Blueprint Analytics</a></nav><div class="px-space-lg pt-space-md border-t border-surface-container-high"><div class="flex items-center gap-space-sm"><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div><div class="flex flex-col min-w-0"><span class="font-label-sm text-label-sm font-semibold text-on-surface truncate">Ambassador Lead</span><span class="font-badge-caption text-badge-caption text-on-surface-variant truncate">campus@nxtwave.tech</span></div></div></div></aside><div class="pl-64"><header class="fixed top-0 left-64 right-0 h-16 bg-surface-container-lowest/90 backdrop-blur-md border-b border-surface-container-high/80 z-40 px-gutter flex items-center justify-between"><div class="flex items-center gap-space-sm"><span class="px-2.5 py-0.5 rounded-full bg-surface-container text-primary font-badge-caption text-badge-caption uppercase font-bold tracking-wider">Live Cohort Ops</span></div><div class="flex items-center gap-space-md"><div class="hidden sm:flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-container-low text-on-surface-variant font-label-sm text-label-sm"><span class="material-symbols-outlined text-[16px] text-primary">alarm</span><span>Session: Sat, 6:00 PM IST (60 Mins)</span></div><a class="font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors" href="#">NxtWave Community</a><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></header><main class="relative pt-16 bg-surface w-full min-h-[calc(100vh-4rem)]"><div class="flex flex-col w-full">
+<!-- Demo Data Notification Scrim Banner -->
+<div class="w-full bg-secondary-container/30 px-gutter py-2.5 flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-secondary text-[18px]">info</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant font-medium">
+<span class="font-semibold text-secondary">Demo Data Active:</span> Visualized records and referral metrics are illustrative mock figures for campaign prototyping.
+      </p>
+</div>
+<div class="flex items-center gap-space-xs text-on-surface-variant hover:text-on-surface cursor-pointer">
+<span class="font-label-sm text-label-sm">Prototype Config</span>
+<span class="material-symbols-outlined text-[16px]">tune</span>
+</div>
+</div>
+<div class="p-gutter flex flex-col gap-space-lg max-w-[1440px] mx-auto w-full">
+<!-- Breadcrumb & Top Bar Operations -->
+<div class="flex flex-col lg:flex-row lg:items-center justify-between gap-space-md">
+<div class="flex flex-col gap-1">
+<div class="flex items-center gap-1.5 font-label-sm text-label-sm text-on-surface-variant">
+<span class="hover:text-primary transition-colors cursor-pointer">Campus Growth Engine</span>
+<span class="material-symbols-outlined text-[14px]">chevron_right</span>
+<span class="hover:text-primary transition-colors cursor-pointer">Campaigns</span>
+<span class="material-symbols-outlined text-[14px]">chevron_right</span>
+<span class="text-on-surface font-semibold">AI in 60 Mins (Oct Cohort)</span>
+</div>
+<div class="flex items-center gap-space-sm">
+<h1 class="font-headline-md text-headline-md text-on-surface tracking-tight">Campaign Operations Console</h1>
+<span class="px-2.5 py-0.5 rounded-full bg-primary/10 text-primary font-badge-caption text-badge-caption uppercase font-bold flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span> Live Sprint
+          </span>
+</div>
+</div>
+<!-- Action Cluster -->
+<div class="flex items-center flex-wrap gap-space-sm">
+<div class="flex items-center bg-surface-container-lowest shadow-sm rounded-lg px-3 py-2 gap-2 text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px] text-primary">calendar_today</span>
+<span class="font-label-sm text-label-sm font-semibold text-on-surface">Last 7 Days (Oct 18 - Oct 25)</span>
+<span class="material-symbols-outlined text-[16px] cursor-pointer">arrow_drop_down</span>
+</div>
+<button class="flex items-center gap-1.5 bg-surface-container-lowest hover:bg-surface-container-low transition-colors shadow-sm px-3.5 py-2 rounded-lg font-label-md text-label-md text-on-surface font-semibold">
+<span class="material-symbols-outlined text-[18px] text-on-surface-variant">download</span>
+          Export CSV
+        </button>
+<button class="flex items-center gap-1.5 bg-primary hover:bg-primary-container text-on-primary transition-colors shadow-sm px-4 py-2 rounded-lg font-label-md text-label-md font-semibold">
+<span class="material-symbols-outlined text-[18px]">add_circle</span>
+          Create Campaign Blitz
+        </button>
+</div>
+</div>
+<!-- Secondary Tab Navigation -->
+<div class="flex items-center gap-space-md border-b-2 border-surface-container-high/40 pb-px">
+<button class="pb-2.5 px-1 font-label-md text-label-md font-bold text-primary border-b-2 border-primary flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[18px]">overview</span>
+        Overview &amp; Trajectory
+      </button>
+<button class="pb-2.5 px-1 font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[18px]">how_to_reg</span>
+        Registrations (342)
+      </button>
+<button class="pb-2.5 px-1 font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[18px]">share</span>
+        Referral Analytics
+      </button>
+<button class="pb-2.5 px-1 font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[18px]">badge</span>
+        Ambassadors (14)
+      </button>
+<button class="pb-2.5 px-1 font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[18px]">account_balance_wallet</span>
+        Campaign Budget
+      </button>
+<button class="pb-2.5 px-1 font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[18px]">settings</span>
+        Settings
+      </button>
+</div>
+<!-- KPI Metric Cards (5 Columns) -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-space-md">
+<!-- Card 1 -->
+<div class="bg-surface-container-lowest p-space-md rounded-xl shadow-sm flex flex-col justify-between relative overflow-hidden group hover:shadow-md transition-shadow">
+<div class="flex items-center justify-between mb-2">
+<span class="font-badge-caption text-badge-caption text-on-surface-variant uppercase font-bold tracking-wider">Unique Regs</span>
+<span class="material-symbols-outlined text-primary text-[20px]">group_add</span>
+</div>
+<div class="flex items-baseline gap-2">
+<span class="font-headline-lg text-headline-lg font-bold text-on-surface">342</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">/ 500 Target</span>
+</div>
+<div class="mt-3">
+<div class="flex justify-between items-center mb-1">
+<span class="font-badge-caption text-badge-caption text-primary font-bold">68.4% Achieved</span>
+<span class="font-badge-caption text-badge-caption text-on-surface-variant">(Demo Data)</span>
+</div>
+<div class="w-full bg-surface-container-low h-2 rounded-full overflow-hidden">
+<div class="bg-primary h-full rounded-full transition-all duration-500" style="width: 68.4%"></div>
+</div>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="bg-surface-container-lowest p-space-md rounded-xl shadow-sm flex flex-col justify-between relative group hover:shadow-md transition-shadow">
+<div class="flex items-center justify-between mb-2">
+<span class="font-badge-caption text-badge-caption text-on-surface-variant uppercase font-bold tracking-wider">Regs Today</span>
+<span class="material-symbols-outlined text-secondary text-[20px]">today</span>
+</div>
+<div class="flex items-baseline gap-2">
+<span class="font-headline-lg text-headline-lg font-bold text-on-surface">48</span>
+<span class="font-label-sm text-label-sm text-primary font-semibold flex items-center">
+<span class="material-symbols-outlined text-[16px]">trending_up</span> +18%
+          </span>
+</div>
+<div class="mt-3 flex items-center justify-between text-on-surface-variant">
+<span class="font-body-sm text-body-sm">vs 41 yesterday</span>
+<span class="font-badge-caption text-badge-caption text-on-surface-variant">(Demo Data)</span>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="bg-surface-container-lowest p-space-md rounded-xl shadow-sm flex flex-col justify-between relative group hover:shadow-md transition-shadow">
+<div class="flex items-center justify-between mb-2">
+<span class="font-badge-caption text-badge-caption text-on-surface-variant uppercase font-bold tracking-wider">Remaining to Goal</span>
+<span class="material-symbols-outlined text-tertiary text-[20px]">flag</span>
+</div>
+<div>
+<span class="font-headline-lg text-headline-lg font-bold text-on-surface">158</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant font-medium">needed to cross target</p>
+</div>
+<div class="mt-3 flex items-center justify-between">
+<span class="px-2 py-0.5 rounded bg-surface-container-high text-on-surface font-label-sm text-label-sm font-semibold">5 Days Left</span>
+<span class="font-badge-caption text-badge-caption text-on-surface-variant">(Demo Data)</span>
+</div>
+</div>
+<!-- Card 4 -->
+<div class="bg-surface-container-lowest p-space-md rounded-xl shadow-sm flex flex-col justify-between relative group hover:shadow-md transition-shadow">
+<div class="flex items-center justify-between mb-2">
+<span class="font-badge-caption text-badge-caption text-on-surface-variant uppercase font-bold tracking-wider">Budget Spent</span>
+<span class="material-symbols-outlined text-secondary text-[20px]">payments</span>
+</div>
+<div>
+<div class="flex items-baseline gap-1.5">
+<span class="font-headline-lg text-headline-lg font-bold text-on-surface">₹1,240</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">/ ₹2,000</span>
+</div>
+<p class="font-body-sm text-body-sm text-primary font-semibold mt-0.5">₹3.63 / reg. CAC</p>
+</div>
+<div class="mt-3 flex items-center justify-between">
+<span class="font-body-sm text-body-sm text-on-surface-variant">62.0% burn</span>
+<span class="font-badge-caption text-badge-caption text-on-surface-variant">(Demo Data)</span>
+</div>
+</div>
+<!-- Card 5 -->
+<div class="bg-surface-container-lowest p-space-md rounded-xl shadow-sm flex flex-col justify-between relative group hover:shadow-md transition-shadow">
+<div class="flex items-center justify-between mb-2">
+<span class="font-badge-caption text-badge-caption text-on-surface-variant uppercase font-bold tracking-wider">Referral Rate</span>
+<span class="material-symbols-outlined text-primary text-[20px]">hub</span>
+</div>
+<div>
+<span class="font-headline-lg text-headline-lg font-bold text-on-surface">28.6%</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant font-medium">98 student viral links</p>
+</div>
+<div class="mt-3 flex items-center justify-between">
+<span class="px-2 py-0.5 rounded bg-secondary-container/40 text-on-secondary-container font-label-sm text-label-sm font-semibold">1.4x Viral K-factor</span>
+<span class="font-badge-caption text-badge-caption text-on-surface-variant">(Demo Data)</span>
+</div>
+</div>
+</div>
+<!-- Recommended Next Action Panel -->
+<div class="bg-surface-container-lowest rounded-xl shadow-sm p-space-lg flex flex-col lg:flex-row items-start lg:items-center justify-between gap-space-lg bg-gradient-to-r from-surface-container-lowest via-surface-container-low/60 to-surface-container-lowest">
+<div class="flex items-start gap-space-md max-w-3xl">
+<div class="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-primary text-[28px]">electric_bolt</span>
+</div>
+<div class="flex flex-col gap-1">
+<div class="flex items-center gap-space-sm flex-wrap">
+<span class="px-2.5 py-0.5 rounded-full bg-secondary-container text-on-secondary-container font-badge-caption text-badge-caption uppercase font-bold">
+              Automated Campaign Recommendation #1
+            </span>
+<span class="font-label-md text-label-md font-bold text-on-surface">Channel Saturation &amp; Ambassador Activation</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant leading-relaxed">
+            ECE and IT departments show <span class="font-semibold text-error">42% lower adoption</span> despite high click-throughs on WhatsApp. Meanwhile, <span class="font-semibold text-on-surface">6 of 14 student ambassadors</span> have 0 active shares. Recommend dispatching the WhatsApp Batchmate Template to the 6 inactive ambassadors and triggering targeted departmental email alerts.
+          </p>
+</div>
+</div>
+<div class="flex items-center gap-space-sm w-full lg:w-auto shrink-0 flex-wrap sm:flex-nowrap">
+<button class="w-full sm:w-auto bg-primary hover:bg-primary-container text-on-primary transition-all px-4 py-2.5 rounded-lg font-label-md text-label-md font-semibold flex items-center justify-center gap-2 shadow-sm">
+<span class="material-symbols-outlined text-[18px]">send_and_archive</span>
+          Trigger Ambassador Prompt
+        </button>
+<button class="w-full sm:w-auto bg-surface-container-high hover:bg-surface-dim text-on-surface transition-colors px-4 py-2.5 rounded-lg font-label-md text-label-md font-semibold flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[18px]">visibility</span>
+          View Low-Converting Channels
+        </button>
+</div>
+</div>
+<!-- Analytics & Breakdown Section (2-Column Grid) -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-space-lg">
+<!-- Left Chart: 7-Day Trend (7 Cols) -->
+<div class="lg:col-span-7 bg-surface-container-lowest p-space-lg rounded-xl shadow-sm flex flex-col justify-between">
+<div class="flex items-center justify-between mb-4">
+<div class="flex flex-col">
+<h2 class="font-headline-sm text-headline-sm text-on-surface font-bold tracking-tight">Registration Velocity (Last 7 Days)</h2>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Daily direct enrollment vs. student referral link conversions</span>
+</div>
+<div class="flex items-center gap-space-md">
+<div class="flex items-center gap-1.5">
+<span class="w-3 h-3 rounded-full bg-primary"></span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Direct (244)</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="w-3 h-3 rounded-full bg-secondary-container"></span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Referrals (98)</span>
+</div>
+</div>
+</div>
+<!-- Inline SVG Visualization -->
+<div class="w-full h-64 flex flex-col justify-end pt-4">
+<svg class="w-full h-full" preserveaspectratio="none" viewbox="0 0 600 200">
+<!-- Grid Lines -->
+<line stroke="#E2E8F0" stroke-dasharray="3 3" x1="0" x2="600" y1="40" y2="40"></line>
+<line stroke="#E2E8F0" stroke-dasharray="3 3" x1="0" x2="600" y1="90" y2="90"></line>
+<line stroke="#E2E8F0" stroke-dasharray="3 3" x1="0" x2="600" y1="140" y2="140"></line>
+<line stroke="#CBD5E1" x1="0" x2="600" y1="180" y2="180"></line>
+<!-- Day 1: D=18, R=6 -->
+<rect fill="#006948" height="35" rx="3" width="22" x="35" y="145"></rect>
+<rect fill="#86f2e4" height="12" rx="3" width="22" x="61" y="168"></rect>
+<!-- Day 2: D=24, R=8 -->
+<rect fill="#006948" height="48" rx="3" width="22" x="115" y="132"></rect>
+<rect fill="#86f2e4" height="16" rx="3" width="22" x="141" y="164"></rect>
+<!-- Day 3: D=32, R=12 -->
+<rect fill="#006948" height="64" rx="3" width="22" x="195" y="116"></rect>
+<rect fill="#86f2e4" height="24" rx="3" width="22" x="221" y="156"></rect>
+<!-- Day 4: D=40, R=15 -->
+<rect fill="#006948" height="80" rx="3" width="22" x="275" y="100"></rect>
+<rect fill="#86f2e4" height="30" rx="3" width="22" x="301" y="150"></rect>
+<!-- Day 5: D=42, R=19 -->
+<rect fill="#006948" height="84" rx="3" width="22" x="355" y="96"></rect>
+<rect fill="#86f2e4" height="38" rx="3" width="22" x="381" y="142"></rect>
+<!-- Day 6: D=41, R=18 -->
+<rect fill="#006948" height="82" rx="3" width="22" x="435" y="98"></rect>
+<rect fill="#86f2e4" height="36" rx="3" width="22" x="461" y="144"></rect>
+<!-- Day 7: D=47, R=20 (Peak) -->
+<rect fill="#006948" height="94" rx="3" width="22" x="515" y="86"></rect>
+<rect fill="#86f2e4" height="40" rx="3" width="22" x="541" y="140"></rect>
+<!-- Trend Polyline for Overall Momentum -->
+<polyline fill="none" points="47,135 127,120 207,100 287,85 367,78 447,80 527,62" stroke="#006a61" stroke-linecap="round" stroke-width="2.5"></polyline>
+<circle cx="527" cy="62" fill="#006a61" r="4"></circle>
+</svg>
+</div>
+<div class="flex justify-between items-center text-on-surface-variant font-label-sm text-label-sm pt-2">
+<span class="w-20 text-center">Day 1 (Oct 19)</span>
+<span class="w-20 text-center">Day 2 (Oct 20)</span>
+<span class="w-20 text-center">Day 3 (Oct 21)</span>
+<span class="w-20 text-center">Day 4 (Oct 22)</span>
+<span class="w-20 text-center">Day 5 (Oct 23)</span>
+<span class="w-20 text-center">Day 6 (Oct 24)</span>
+<span class="w-20 text-center font-bold text-on-surface">Day 7 (Today)</span>
+</div>
+</div>
+<!-- Right Breakdown: Acquisition Sources & Conversion (5 Cols) -->
+<div class="lg:col-span-5 bg-surface-container-lowest p-space-lg rounded-xl shadow-sm flex flex-col justify-between">
+<div class="flex items-center justify-between mb-2">
+<div>
+<h2 class="font-headline-sm text-headline-sm text-on-surface font-bold tracking-tight">Acquisition Sources</h2>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Channel volume &amp; conversion effectiveness</span>
+</div>
+<span class="font-badge-caption text-badge-caption bg-surface-container text-on-surface-variant px-2 py-0.5 rounded uppercase font-bold">(Demo Data)</span>
+</div>
+<div class="flex flex-col gap-space-md my-auto pt-2">
+<!-- Channel 1 -->
+<div class="flex flex-col gap-1">
+<div class="flex items-center justify-between font-label-md text-label-md">
+<span class="font-bold text-on-surface flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[18px] text-primary">chat</span>
+                WhatsApp Study Groups
+              </span>
+<span class="text-on-surface-variant font-semibold">164 regs (47.9%)</span>
+</div>
+<div class="w-full bg-surface-container-low h-3 rounded-full overflow-hidden flex">
+<div class="bg-primary h-full rounded-full" style="width: 47.9%"></div>
+</div>
+<div class="flex justify-between items-center text-on-surface-variant font-label-sm text-label-sm">
+<span>Conversion: 32.0%</span>
+<span class="text-primary font-semibold">Highest Yield</span>
+</div>
+</div>
+<!-- Channel 2 -->
+<div class="flex flex-col gap-1">
+<div class="flex items-center justify-between font-label-md text-label-md">
+<span class="font-bold text-on-surface flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[18px] text-secondary">badge</span>
+                Campus Ambassadors
+              </span>
+<span class="text-on-surface-variant font-semibold">98 regs (28.6%)</span>
+</div>
+<div class="w-full bg-surface-container-low h-3 rounded-full overflow-hidden flex">
+<div class="bg-secondary-container h-full rounded-full" style="width: 28.6%"></div>
+</div>
+<div class="flex justify-between items-center text-on-surface-variant font-label-sm text-label-sm">
+<span>Conversion: 24.1%</span>
+<span class="text-on-surface-variant">14 College Reps</span>
+</div>
+</div>
+<!-- Channel 3 -->
+<div class="flex flex-col gap-1">
+<div class="flex items-center justify-between font-label-md text-label-md">
+<span class="font-bold text-on-surface flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[18px] text-tertiary">photo_camera</span>
+                Instagram / LinkedIn
+              </span>
+<span class="text-on-surface-variant font-semibold">52 regs (15.2%)</span>
+</div>
+<div class="w-full bg-surface-container-low h-3 rounded-full overflow-hidden flex">
+<div class="bg-primary-container h-full rounded-full" style="width: 15.2%"></div>
+</div>
+<div class="flex justify-between items-center text-on-surface-variant font-label-sm text-label-sm">
+<span>Conversion: 12.4%</span>
+<span class="text-error font-semibold">Underperforming CAC</span>
+</div>
+</div>
+<!-- Channel 4 -->
+<div class="flex flex-col gap-1">
+<div class="flex items-center justify-between font-label-md text-label-md">
+<span class="font-bold text-on-surface flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[18px] text-outline">language</span>
+                Direct / College Portals
+              </span>
+<span class="text-on-surface-variant font-semibold">28 regs (8.3%)</span>
+</div>
+<div class="w-full bg-surface-container-low h-3 rounded-full overflow-hidden flex">
+<div class="bg-surface-container-highest h-full rounded-full" style="width: 8.3%"></div>
+</div>
+<div class="flex justify-between items-center text-on-surface-variant font-label-sm text-label-sm">
+<span>Conversion: 19.0%</span>
+<span class="text-on-surface-variant">Notice Boards &amp; LMS</span>
+</div>
+</div>
+</div>
+<button class="w-full mt-3 py-2 bg-surface-container-low hover:bg-surface-container font-label-md text-label-md text-on-surface font-semibold rounded-lg transition-colors flex items-center justify-center gap-1">
+<span>Inspect Channel Deep Dives</span>
+<span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</button>
+</div>
+</div>
+<!-- Lower Grid Section: Ambassador Leaderboard & Dept Distribution -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-space-lg">
+<!-- Ambassador Leaderboard (7 Cols) -->
+<div class="lg:col-span-7 bg-surface-container-lowest p-space-lg rounded-xl shadow-sm flex flex-col justify-between">
+<div class="flex items-center justify-between mb-4">
+<div>
+<h2 class="font-headline-sm text-headline-sm text-on-surface font-bold tracking-tight">Ambassador Leaderboard</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Top student advocates driving confirmed workshop RSVPs</p>
+</div>
+<span class="font-badge-caption text-badge-caption bg-surface-container text-on-surface-variant px-2 py-0.5 rounded uppercase font-bold">(Demo Data)</span>
+</div>
+<div class="overflow-x-auto w-full">
+<table class="w-full text-left font-body-sm text-body-sm">
+<thead>
+<tr class="bg-surface-container-low text-on-surface-variant font-label-sm text-label-sm border-b border-surface-container-high/60">
+<th class="py-2.5 px-3 rounded-l-lg">Rank</th>
+<th class="py-2.5 px-3">Ambassador</th>
+<th class="py-2.5 px-3">College &amp; Branch</th>
+<th class="py-2.5 px-3 text-right">Shares</th>
+<th class="py-2.5 px-3 text-right rounded-r-lg">Verified Regs</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-surface-container-high/30">
+<!-- Rep 1 -->
+<tr class="hover:bg-surface-container-low/40 transition-colors">
+<td class="py-3 px-3">
+<span class="w-6 h-6 rounded-full bg-primary/10 text-primary font-bold flex items-center justify-center font-label-sm text-label-sm">#1</span>
+</td>
+<td class="py-3 px-3">
+<div class="flex items-center gap-2">
+<img class="w-8 h-8 rounded-full object-cover shrink-0" data-alt="Profile photo of Rohan Verma, a cheerful Indian male engineering student wearing a navy shirt, high key studio lighting, professional and friendly." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAENxIadnV7tPnt7NzE2rFwc3hJawYpdv-rhqLcM_wGpBoxsYjl3v19R4738KeFUtwGhzjs2pdIjZnmypTnoVxuj-gnn5OrzPz_eC_oVLj5W7ycLGHnYCHWjKU4-wDhED3w7FnwlWdOUs-E7r13ScmFpE3_y5T9A8lR7IQFxiELww7rIaCyqwn0tfRT-MuQHct5o1cemzSSaqxYJ_O9iKlnKIBifpub11zj3VD0DBUY"/>
+<div>
+<span class="font-label-md text-label-md font-bold text-on-surface block">Rohan V.</span>
+<span class="font-badge-caption text-badge-caption text-primary">Badge: Master Evangelist</span>
+</div>
+</div>
+</td>
+<td class="py-3 px-3">
+<span class="font-medium text-on-surface block">BMSIT</span>
+<span class="text-on-surface-variant text-label-sm">CSE (3rd Year)</span>
+</td>
+<td class="py-3 px-3 text-right font-semibold text-on-surface">112</td>
+<td class="py-3 px-3 text-right">
+<span class="px-2 py-0.5 rounded-full bg-primary/10 text-primary font-bold font-label-sm text-label-sm">34 regs</span>
+</td>
+</tr>
+<!-- Rep 2 -->
+<tr class="hover:bg-surface-container-low/40 transition-colors">
+<td class="py-3 px-3">
+<span class="w-6 h-6 rounded-full bg-secondary/10 text-secondary font-bold flex items-center justify-center font-label-sm text-label-sm">#2</span>
+</td>
+<td class="py-3 px-3">
+<div class="flex items-center gap-2">
+<img class="w-8 h-8 rounded-full object-cover shrink-0" data-alt="Profile photo of Sneha Kulkarni, an Indian female student leader with spectacles smiling warmly, clean campus background, warm bright natural lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDDJAuMrdCCefMZL190qQR2t6adJK4w9Jf9vJ-BXQEYXqCVUcsvNvgoG4pTcb5BtEMnoLtg0va90nNe6ZZYHczas3PR80UiPATZEEpE7naop5Q9Ur6GuMOWY7aGKTPI2vvjbT-sFUWj6KPoBY6WDTPcKYCI6sGI0Fgb1ZhjQqBy2GD2HAxGKYrmBlFegPRlCDQybVS6sVx5W-X0uhERMVSqJibVcyWGZ--r7VU7Z4YB"/>
+<div>
+<span class="font-label-md text-label-md font-bold text-on-surface block">Sneha K.</span>
+<span class="font-badge-caption text-badge-caption text-secondary">Badge: Campus Lead</span>
+</div>
+</div>
+</td>
+<td class="py-3 px-3">
+<span class="font-medium text-on-surface block">PESIT</span>
+<span class="text-on-surface-variant text-label-sm">AI/ML (2nd Year)</span>
+</td>
+<td class="py-3 px-3 text-right font-semibold text-on-surface">89</td>
+<td class="py-3 px-3 text-right">
+<span class="px-2 py-0.5 rounded-full bg-secondary-container text-on-secondary-container font-bold font-label-sm text-label-sm">28 regs</span>
+</td>
+</tr>
+<!-- Rep 3 -->
+<tr class="hover:bg-surface-container-low/40 transition-colors">
+<td class="py-3 px-3">
+<span class="w-6 h-6 rounded-full bg-surface-container-high text-on-surface-variant font-bold flex items-center justify-center font-label-sm text-label-sm">#3</span>
+</td>
+<td class="py-3 px-3">
+<div class="flex items-center gap-2">
+<img class="w-8 h-8 rounded-full object-cover shrink-0" data-alt="Portrait of Aarav Sharma, young South Asian male tech ambassador in a modern college library, soft depth of field, focused confident smile." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCLS8S18jyCYP87q2V34i3y-2dFQRFY-B2xB_VjUoI9f9-_Mo4xtOEfWXtsFrxmdEqvVaQTIagrv0mqRoxtVEguIZoJygDvhDY2X166fUDZrKJHhWR_bwKF2Y6dFBYn3t8Rboaw2XNYqO5U33tUvZcDyvW5eTuvsnBknma8vO_UJhrhHC_2tIQt4YmTohSBDt0JVVZSSwaTEsSHDpeBsjd99PjggWvOuatlZ2mcshrH"/>
+<div>
+<span class="font-label-md text-label-md font-bold text-on-surface block">Aarav S.</span>
+<span class="font-badge-caption text-badge-caption text-on-surface-variant">Badge: Rising Star</span>
+</div>
+</div>
+</td>
+<td class="py-3 px-3">
+<span class="font-medium text-on-surface block">RVCE</span>
+<span class="text-on-surface-variant text-label-sm">ECE (4th Year)</span>
+</td>
+<td class="py-3 px-3 text-right font-semibold text-on-surface">64</td>
+<td class="py-3 px-3 text-right">
+<span class="px-2 py-0.5 rounded-full bg-surface-container text-on-surface font-bold font-label-sm text-label-sm">19 regs</span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="pt-3 border-t border-surface-container-high/40 flex items-center justify-between text-on-surface-variant">
+<span class="font-label-sm text-label-sm">11 additional ambassadors ranked in roster</span>
+<button class="font-label-md text-label-md text-primary font-bold hover:underline flex items-center gap-1">
+            Manage Ambassador Roster
+            <span class="material-symbols-outlined text-[16px]">chevron_right</span>
+</button>
+</div>
+</div>
+<!-- Department & Branch Distribution (5 Cols) -->
+<div class="lg:col-span-5 bg-surface-container-lowest p-space-lg rounded-xl shadow-sm flex flex-col justify-between">
+<div class="flex items-center justify-between mb-2">
+<div>
+<h2 class="font-headline-sm text-headline-sm text-on-surface font-bold tracking-tight">Department Penetration</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Cohort composition by academic branch</p>
+</div>
+<span class="font-badge-caption text-badge-caption bg-surface-container text-on-surface-variant px-2 py-0.5 rounded uppercase font-bold">(Demo Data)</span>
+</div>
+<div class="flex flex-col gap-3 my-auto">
+<!-- CSE -->
+<div>
+<div class="flex justify-between items-center font-label-sm text-label-sm mb-1">
+<span class="font-bold text-on-surface">Computer Science &amp; Engineering</span>
+<span class="font-semibold text-on-surface">44% (150 students)</span>
+</div>
+<div class="w-full bg-surface-container-low h-2.5 rounded-full overflow-hidden">
+<div class="bg-primary h-full rounded-full" style="width: 44%"></div>
+</div>
+</div>
+<!-- AI/ML -->
+<div>
+<div class="flex justify-between items-center font-label-sm text-label-sm mb-1">
+<span class="font-bold text-on-surface">Artificial Intelligence &amp; Data Science</span>
+<span class="font-semibold text-on-surface">26% (89 students)</span>
+</div>
+<div class="w-full bg-surface-container-low h-2.5 rounded-full overflow-hidden">
+<div class="bg-secondary-container h-full rounded-full" style="width: 26%"></div>
+</div>
+</div>
+<!-- IT -->
+<div>
+<div class="flex justify-between items-center font-label-sm text-label-sm mb-1">
+<span class="font-bold text-on-surface">Information Technology</span>
+<span class="font-semibold text-on-surface">15% (51 students)</span>
+</div>
+<div class="w-full bg-surface-container-low h-2.5 rounded-full overflow-hidden">
+<div class="bg-primary-container h-full rounded-full" style="width: 15%"></div>
+</div>
+</div>
+<!-- ECE -->
+<div>
+<div class="flex justify-between items-center font-label-sm text-label-sm mb-1">
+<span class="font-bold text-on-surface">Electronics &amp; Communication (ECE)</span>
+<span class="font-semibold text-error">11% (38 students) — Low</span>
+</div>
+<div class="w-full bg-surface-container-low h-2.5 rounded-full overflow-hidden">
+<div class="bg-outline h-full rounded-full" style="width: 11%"></div>
+</div>
+</div>
+<!-- Other -->
+<div>
+<div class="flex justify-between items-center font-label-sm text-label-sm mb-1">
+<span class="font-bold text-on-surface">Mechanical, Civil &amp; Allied</span>
+<span class="font-semibold text-on-surface">4% (14 students)</span>
+</div>
+<div class="w-full bg-surface-container-low h-2.5 rounded-full overflow-hidden">
+<div class="bg-surface-container-highest h-full rounded-full" style="width: 4%"></div>
+</div>
+</div>
+</div>
+<div class="bg-surface-container-low/70 p-3 rounded-lg flex items-center justify-between text-on-surface-variant font-body-sm text-body-sm mt-3">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px] text-primary">school</span>
+<span>Targeting 35+ regional partner institutions</span>
+</div>
+<span class="font-label-sm text-label-sm font-semibold text-primary cursor-pointer hover:underline">View Map</span>
+</div>
+</div>
+</div>
+<!-- Recent Registration Activity Log (Table) -->
+<div class="bg-surface-container-lowest p-space-lg rounded-xl shadow-sm flex flex-col gap-space-md mb-space-lg">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm">
+<div>
+<h2 class="font-headline-sm text-headline-sm text-on-surface font-bold tracking-tight">Recent Registration Feed</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Live audit log of student check-ins and chosen workshop build targets</p>
+</div>
+<div class="flex items-center gap-space-sm">
+<div class="flex items-center bg-surface-container-low rounded-lg px-3 py-1.5 text-on-surface-variant gap-2 text-label-sm font-label-sm">
+<span class="material-symbols-outlined text-[16px]">search</span>
+<input class="bg-transparent border-none outline-none text-on-surface placeholder:text-on-surface-variant w-44 font-body-sm" placeholder="Search student or college..." type="text"/>
+</div>
+<span class="font-badge-caption text-badge-caption bg-secondary-container/40 text-on-secondary-container px-2 py-1 rounded font-bold uppercase">Real-Time Sync</span>
+</div>
+</div>
+<div class="overflow-x-auto w-full">
+<table class="w-full text-left font-body-sm text-body-sm">
+<thead>
+<tr class="bg-surface-container-low text-on-surface-variant font-label-sm text-label-sm border-b border-surface-container-high/60">
+<th class="py-2.5 px-3 rounded-l-lg">Student Name</th>
+<th class="py-2.5 px-3">Institution &amp; Branch</th>
+<th class="py-2.5 px-3">Selected Project Blueprint</th>
+<th class="py-2.5 px-3">Acquisition Channel</th>
+<th class="py-2.5 px-3 text-right rounded-r-lg">Timestamp</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-surface-container-high/30">
+<!-- Row 1 -->
+<tr class="hover:bg-surface-container-low/40 transition-colors">
+<td class="py-3 px-3">
+<div class="flex items-center gap-2">
+<div class="w-7 h-7 rounded-full bg-primary/10 text-primary font-bold flex items-center justify-center text-[12px]">
+                    DN
+                  </div>
+<span class="font-label-md text-label-md font-semibold text-on-surface">Divya Nanduri</span>
+</div>
+</td>
+<td class="py-3 px-3">
+<span class="font-medium text-on-surface block">BMS College of Engineering</span>
+<span class="text-on-surface-variant font-label-sm text-label-sm">CSE • 3rd Year</span>
+</td>
+<td class="py-3 px-3">
+<span class="px-2.5 py-1 rounded-full bg-surface-container-high text-on-surface font-label-sm text-label-sm font-semibold inline-flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px] text-primary">description</span>
+                  ATS Resume Analyzer
+                </span>
+</td>
+<td class="py-3 px-3">
+<span class="font-label-sm text-label-sm text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px] text-secondary">link</span>
+                  Rohan V. (Ambassador)
+                </span>
+</td>
+<td class="py-3 px-3 text-right font-medium text-on-surface-variant">2 mins ago</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-surface-container-low/40 transition-colors">
+<td class="py-3 px-3">
+<div class="flex items-center gap-2">
+<div class="w-7 h-7 rounded-full bg-secondary/10 text-secondary font-bold flex items-center justify-center text-[12px]">
+                    KP
+                  </div>
+<span class="font-label-md text-label-md font-semibold text-on-surface">Karthik Pandian</span>
+</div>
+</td>
+<td class="py-3 px-3">
+<span class="font-medium text-on-surface block">PES University</span>
+<span class="text-on-surface-variant font-label-sm text-label-sm">AI &amp; Robotics • 2nd Year</span>
+</td>
+<td class="py-3 px-3">
+<span class="px-2.5 py-1 rounded-full bg-secondary-container/40 text-on-secondary-container font-label-sm text-label-sm font-semibold inline-flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">smart_toy</span>
+                  Smart Study Bot
+                </span>
+</td>
+<td class="py-3 px-3">
+<span class="font-label-sm text-label-sm text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px] text-primary">chat</span>
+                  WhatsApp Group (PES CS-C)
+                </span>
+</td>
+<td class="py-3 px-3 text-right font-medium text-on-surface-variant">7 mins ago</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-surface-container-low/40 transition-colors">
+<td class="py-3 px-3">
+<div class="flex items-center gap-2">
+<div class="w-7 h-7 rounded-full bg-tertiary/10 text-tertiary font-bold flex items-center justify-center text-[12px]">
+                    AR
+                  </div>
+<span class="font-label-md text-label-md font-semibold text-on-surface">Ananya Roy</span>
+</div>
+</td>
+<td class="py-3 px-3">
+<span class="font-medium text-on-surface block">RV College of Engineering</span>
+<span class="text-on-surface-variant font-label-sm text-label-sm">Information Science • 4th Year</span>
+</td>
+<td class="py-3 px-3">
+<span class="px-2.5 py-1 rounded-full bg-surface-container-high text-on-surface font-label-sm text-label-sm font-semibold inline-flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px] text-primary">query_stats</span>
+                  Data Dashboard
+                </span>
+</td>
+<td class="py-3 px-3">
+<span class="font-label-sm text-label-sm text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">campaign</span>
+                  LinkedIn Campus Post
+                </span>
+</td>
+<td class="py-3 px-3 text-right font-medium text-on-surface-variant">14 mins ago</td>
+</tr>
+<!-- Row 4 -->
+<tr class="hover:bg-surface-container-low/40 transition-colors">
+<td class="py-3 px-3">
+<div class="flex items-center gap-2">
+<div class="w-7 h-7 rounded-full bg-outline/10 text-outline font-bold flex items-center justify-center text-[12px]">
+                    SM
+                  </div>
+<span class="font-label-md text-label-md font-semibold text-on-surface">Siddharth Menon</span>
+</div>
+</td>
+<td class="py-3 px-3">
+<span class="font-medium text-on-surface block">MS Ramaiah Institute of Tech</span>
+<span class="text-on-surface-variant font-label-sm text-label-sm">ECE • 3rd Year</span>
+</td>
+<td class="py-3 px-3">
+<span class="px-2.5 py-1 rounded-full bg-surface-container-high text-on-surface font-label-sm text-label-sm font-semibold inline-flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px] text-primary">description</span>
+                  ATS Resume Analyzer
+                </span>
+</td>
+<td class="py-3 px-3">
+<span class="font-label-sm text-label-sm text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px] text-secondary">link</span>
+                  Sneha K. (Ambassador)
+                </span>
+</td>
+<td class="py-3 px-3 text-right font-medium text-on-surface-variant">26 mins ago</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="flex flex-col sm:flex-row items-center justify-between pt-2 border-t border-surface-container-high/40 gap-2">
+<span class="font-body-sm text-body-sm text-on-surface-variant">Showing 4 of 342 records (all mock dataset entries flagged with demo-data attributes)</span>
+<div class="flex items-center gap-2">
+<button class="px-3 py-1.5 rounded bg-surface-container-low text-on-surface-variant hover:bg-surface-container font-label-sm text-label-sm font-semibold">Previous</button>
+<span class="font-label-sm text-label-sm text-on-surface px-2">Page 1 of 86</span>
+<button class="px-3 py-1.5 rounded bg-surface-container-low text-on-surface-variant hover:bg-surface-container font-label-sm text-label-sm font-semibold">Next</button>
+</div>
+</div>
+</div>
+</div>
+</div></main></div></body></html>
